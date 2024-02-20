@@ -6,10 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.jsp.lms.entity.connection.ConnectToDatabase;
 import com.jsp.lms.entity.model.Book;
 import com.jsp.lms.entity.model.Library;
+import com.jsp.lms.entity.model.Status;
 
 public class DaoImplementation implements Dao {
 
@@ -109,7 +112,7 @@ public class DaoImplementation implements Dao {
 		int id=1;
 		try {
 			Statement st=new ConnectToDatabase().connect().createStatement();
-			st.execute("select MAX(lib_id) from book;");
+			st.execute("select MAX(bookid) from book;");
 			ResultSet rs=st.getResultSet();
 			if(rs.next()) {
 				id=rs.getInt(1)+1;
@@ -121,5 +124,91 @@ public class DaoImplementation implements Dao {
 		
 		return id;
 	}
+
+	@Override
+	public String getBookByID(int bookId) {
+		// TODO Auto-generated method stub
+		String title=null;
+		try {
+			Connection con=new ConnectToDatabase().connect();
+			Statement st=con.createStatement();
+			ResultSet rs=st.executeQuery("select title from book where bookid="+bookId);
+			if(rs.next()) {
+				title=rs.getString(1);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return title;
+	}
+
+	@Override
+	public LinkedList<Book> getBookByLibId(int lib_id) {
+		// TODO Auto-generated method stub
+		LinkedList<Book> books=new LinkedList<>();
+		try {
+			Statement st=new ConnectToDatabase().connect().createStatement();
+			ResultSet rs=st.executeQuery("select * from book where lib_id="+lib_id);
+			while(rs.next()) {
+				Book book=new Book();
+				book.setBookId(rs.getInt(1));
+				book.setTitle(rs.getString(2));
+				book.setAuthor(rs.getString(3));
+				book.setPrice(rs.getDouble(4));
+				book.setPublishedDate(rs.getDate(5).toLocalDate());
+				book.setIssuedDate(rs.getDate(6).toLocalDate());
+				String status=rs.getString(7);
+				if(status.equals(Status.AVAILABLE.toString())) {
+					book.setStatus(Status.AVAILABLE);
+				}else if(status.equals(Status.ISSUED.toString())) {
+					book.setStatus(Status.ISSUED);
+				}else {
+					book.setStatus(Status.LOST);
+				}
+				book.setLibId(lib_id);
+				books.add(book);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return books;
+	}
+
+	@Override
+	public LinkedList<Book> getBookByAuthor(String AuthorName) {
+		// TODO Auto-generated method stub
+		LinkedList<Book> books=new LinkedList<>();
+		try {
+			Statement st=new ConnectToDatabase().connect().createStatement();
+			ResultSet rs=st.executeQuery("select * from book where author= '"+AuthorName+"'");
+			while(rs.next()) {
+				Book book=new Book();
+				book.setBookId(rs.getInt(1));
+				book.setTitle(rs.getString(2));
+				book.setAuthor(AuthorName);
+				book.setPrice(rs.getDouble(4));
+				book.setPublishedDate(rs.getDate(5).toLocalDate());
+				book.setIssuedDate(rs.getDate(6).toLocalDate());
+				String status=rs.getString(7);
+				if(status.equals(Status.AVAILABLE.toString())) {
+					book.setStatus(Status.AVAILABLE);
+				}else if(status.equals(Status.ISSUED.toString())) {
+					book.setStatus(Status.ISSUED);
+				}else {
+					book.setStatus(Status.LOST);
+				}
+				book.setLibId(rs.getInt(8));
+				books.add(book);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return books;
+		
+	}
+	
 	
 }

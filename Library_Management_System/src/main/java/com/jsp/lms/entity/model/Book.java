@@ -59,5 +59,9 @@ public class Book {
 	public void setLibId(int libId) {
 		this.libId = libId;
 	}
+	public String toString() {
+		String s="Bookid = "+bookId+"\nTitle = "+title+"\nAuthor Name = "+author+"\nPrice = "+price+"\nPublished Date = "+publishedDate+"\nIssued Date = "+issuedDate+"\nStatus = "+status+"\nLibrary ID = "+libId;
+		return s;
+	}
 	
 }

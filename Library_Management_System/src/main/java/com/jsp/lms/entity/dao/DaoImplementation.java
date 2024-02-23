@@ -6,8 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import com.jsp.lms.entity.connection.ConnectToDatabase;
 import com.jsp.lms.entity.model.Book;
@@ -15,7 +18,7 @@ import com.jsp.lms.entity.model.Library;
 import com.jsp.lms.entity.model.Status;
 
 public class DaoImplementation implements Dao {
-
+	static Scanner sc=new Scanner(System.in);
 	@Override
 	public boolean addLibrary(Library library) {
 		// TODO Auto-generated method stub
@@ -207,6 +210,180 @@ public class DaoImplementation implements Dao {
 			e.printStackTrace();
 		}
 		return books;
+		
+	}
+
+	@Override
+	public int updateLibraryTable(int libID, int choice) {
+		// TODO Auto-generated method stub
+		int count=0;
+		try {
+			boolean flagChoice=true;
+			Statement st=new ConnectToDatabase().connect().createStatement();
+			while(flagChoice) {
+				switch(choice) {
+				case 1:{
+					System.out.println("What is your new library name?");
+					count=st.executeUpdate("update library set name='"+sc.nextLine()+"' where lib_id="+libID);
+					flagChoice=false;
+					break;
+				}
+				case 2:{
+					System.out.println("What is your new Location Name for library?");
+					count=st.executeUpdate("update library set location='"+sc.nextLine()+"' where lib_id="+libID );
+					flagChoice=false;
+					break;
+				}
+				case 3:{
+					System.out.println("What is your new Email ID for library");
+					count=st.executeUpdate("update library set email='"+sc.nextLine()+"' where lib_id="+libID);
+					flagChoice=false;
+					break;
+				}
+				case 4:{
+					System.out.println("What is your new phone number for library");
+					count=st.executeUpdate("update library set phoneno="+sc.nextLong()+" where lib_id="+libID);
+					flagChoice=false;
+					break;
+				}
+				case 5:{
+					System.out.println("What is your new Librarian Name");
+					count=st.executeUpdate("update library set librarianname='"+sc.nextLine()+"' where lib_id="+libID);
+					flagChoice=false;
+					break;
+				}
+				default:{
+					System.out.println("You have entered wrong choice, please choose correct option");
+				}
+			}
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return count;
+		
+		
+	}
+
+	@Override
+	public int updateBookTable(int bookID, int choice) {
+		// TODO Auto-generated method stub
+		int count=0;
+		try {
+			Statement st=new ConnectToDatabase().connect().createStatement();
+			boolean flagChoice=true;
+			while(flagChoice) {
+				switch(choice) {
+				case 1:{
+					System.out.println("What Title you want to change?");
+					
+					count=st.executeUpdate("update book set title='"+sc.nextLine()+"' where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				case 2:{
+					System.out.println("What Author Name you want?");
+					
+					count=st.executeUpdate("update book set author='"+sc.nextLine()+"' where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				case 3:{
+					System.out.println("What is the new price you want");
+					count=st.executeUpdate("update book set price="+sc.nextDouble()+" where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				case 4:{
+					System.out.println("What is the new published Date in yyyy-mm-dd");
+					
+					count=st.executeUpdate("update book set publisheddate='"+Date.valueOf(LocalDate.parse(sc.nextLine()))+"' where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				case 5:{
+					System.out.println("What is the new issued Date in yyyy-mm-dd");
+				
+					count=st.executeUpdate("update book set issueddate='"+Date.valueOf(LocalDate.parse(sc.nextLine()))+"' where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				case 6:{
+					
+					boolean flagStatus=true;
+					while(flagStatus) {
+						System.out.println("Choose the status you want to change \n1. Available \n2. Issued \n3. Lost");
+						switch(sc.nextInt()) {
+						case 1:{
+							
+							count=st.executeUpdate("update book set status='"+Status.AVAILABLE.toString()+"' where bookid="+bookID);
+							flagStatus=false;
+							flagChoice=false;
+							break;
+						}case 2:{
+							
+							count=st.executeUpdate("update book set status='"+Status.ISSUED.toString()+"' where bookid="+bookID);
+							flagStatus=false;
+							flagChoice=false;
+							break;
+						}
+						case 3:{
+							
+							count=st.executeUpdate("update book set status='"+Status.LOST.toString()+"' where bookid="+bookID);
+							flagStatus=false;
+							flagChoice=false;
+							break;
+						}
+						default:{
+							System.out.println("Wrong Choice Entered, Please select from below only");
+							
+							
+						}
+					}
+					}
+					
+				}
+				case 7:{
+					System.out.println("Which lib_id now you want to update");
+					count=st.executeUpdate("update book set lib_id="+sc.nextInt()+" where bookid="+bookID);
+					flagChoice=false;
+					break;
+				}
+				
+				default:{
+					System.out.println("Wrong Choice Entered, Choose Correct Option");
+				}
+			}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return count;
+	}
+
+	@Override
+	public boolean isBookIdPresent(int bookId) {
+		// TODO Auto-generated method stub
+		Connection con=new ConnectToDatabase().connect();
+		try {
+			Statement st=con.createStatement();
+			st.execute("select bookid from book;");
+			ResultSet rs=st.getResultSet();
+			while(rs.next()) {
+				if(bookId==rs.getInt(1)) {
+					return true;
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 		
 	}
 	
